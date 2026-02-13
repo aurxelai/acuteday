@@ -3,204 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Journey | Valentine's 2026</title>
+    <title>Our Story | Valentine 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Quicksand:wght@300;500&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; background: #0a0a0a; overflow: hidden; font-family: 'Poppins', sans-serif; }
-        canvas { display: block; margin: 0 auto; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-
-        /* Story Modal Styling */
-        #story-modal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
-            width: 85%; max-width: 450px; background: white; border-radius: 20px;
-            padding: 30px; text-align: center; display: none; z-index: 1000;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5); transition: all 0.3s ease-out;
-            border: 1px solid rgba(0,0,0,0.1);
+        body { margin: 0; background: #fff5f5; overflow: hidden; font-family: 'Quicksand', sans-serif; }
+        
+        /* The UI Overlay */
+        #game-ui {
+            position: fixed; top: 20px; left: 20px; z-index: 10;
+            background: rgba(255, 255, 255, 0.8); padding: 15px;
+            border-radius: 15px; border: 1px solid #ffcad4;
         }
-        #story-modal.active { display: block; transform: translate(-50%, -50%) scale(1); }
+        #location-tag { font-family: 'Dancing Script', cursive; font-size: 28px; color: #ff4d6d; }
+        .progress-bar { width: 150px; height: 8px; background: #eee; border-radius: 4px; margin-top: 5px; overflow: hidden; }
+        #fill { width: 0%; height: 100%; background: #ff4d6d; transition: 0.3s; }
 
-        /* Shaadi/Royal Theme Override */
-        #story-modal.royal { background: #5e0000; color: #f1d279; border: 3px solid #f1d279; }
-        #story-modal.royal h2 { color: #f1d279; }
-        #story-modal.royal button { background: #f1d279; color: #5e0000; }
-
-        h2 { font-family: 'Playfair Display', serif; color: #333; margin-top: 0; font-size: 24px; }
-        p { color: #666; line-height: 1.6; font-size: 15px; margin-bottom: 20px; }
-        .royal p { color: #f5e6be; }
-
-        .img-container {
-            width: 100%; height: 220px; background: #f0f0f0; border-radius: 12px;
-            margin-bottom: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center;
+        /* The Story Modal */
+        #modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 70%; max-width: 600px; background: white; padding: 40px;
+            border-radius: 30px; text-align: center; display: none; z-index: 100;
+            box-shadow: 0 20px 50px rgba(255, 182, 193, 0.4); border: 2px solid #ffcad4;
         }
-        .img-container img { width: 100%; height: 100%; object-fit: cover; }
-
-        button {
-            background: #ff4d6d; color: white; border: none; padding: 12px 30px;
-            border-radius: 50px; cursor: pointer; font-size: 16px; font-weight: 600;
-            transition: 0.2s; box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
+        #modal.royal { 
+            background: #5e0000; color: #f1d279; border: 3px solid #f1d279;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
-        button:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        #modal.royal h2 { font-family: 'Dancing Script', cursive; color: #f1d279; }
+        #modal.royal button { background: #f1d279; color: #5e0000; }
 
-        /* Instructions Overlay */
-        #instructions {
-            position: fixed; bottom: 20px; width: 100%; text-align: center;
-            color: rgba(255,255,255,0.6); pointer-events: none; font-size: 14px;
+        h2 { font-family: 'Dancing Script', cursive; font-size: 36px; color: #ff4d6d; margin-top: 0; }
+        .photo-slot { 
+            width: 100%; height: 280px; background: #fdf2f2; border-radius: 20px; 
+            margin-bottom: 20px; overflow: hidden; border: 1px dashed #ffb6c1;
+            display: flex; align-items: center; justify-content: center;
         }
+        .photo-slot img { width: 100%; height: 100%; object-fit: cover; }
+        
+        button { 
+            background: #ff4d6d; color: white; border: none; padding: 12px 35px;
+            border-radius: 25px; font-size: 18px; cursor: pointer; transition: 0.3s;
+        }
+        button:hover { transform: scale(1.05); background: #ff758c; }
     </style>
 </head>
 <body>
 
-<div id="instructions">Use ARROW KEYS or TAP & HOLD to fly upward</div>
+<div id="game-ui">
+    <div id="location-tag">Abu Dhabi</div>
+    <div style="font-size: 12px; color: #888;">Collect 3 memories to continue</div>
+    <div class="progress-bar"><div id="fill"></div></div>
+</div>
 
-<div id="story-modal">
-    <h2 id="m-title">Milestone Title</h2>
-    <div class="img-container">
-        <span id="img-placeholder" style="color:#ccc; font-style:italic;">Photo goes here</span>
+<div id="modal">
+    <h2 id="m-title">Abu Dhabi</h2>
+    <div class="photo-slot">
         <img id="m-img" src="" style="display:none;">
+        <span id="m-label" style="color:#ffb6c1;">♥ Place your memory photo here ♥</span>
     </div>
-    <p id="m-text">Your beautiful story text will go right here. You can write as much as you like!</p>
-    <button id="m-btn" onclick="closeModal()">Continue Journey →</button>
+    <p id="m-text">Where it all began...</p>
+    <button onclick="nextMilestone()">Continue our story →</button>
 </div>
 
 <script>
-/** * EDIT YOUR STORY HERE 
- * Add your photo filenames (e.g., 'prague.jpg') to the 'photo' field.
- * They must be in the same folder as this index.html file.
- */
-const JOURNEY_DATA = [
-    { title: "The Beginning: Abu Dhabi", icon: "🕌", photo: "abu-dhabi.jpg", text: "Write about that first spark in the desert heat..." },
-    { title: "Dating Days", icon: "👩‍❤️‍👨", photo: "dating.jpg", text: "All the little moments that made us 'us'..." },
-    { title: "Almaty, Kazakhstan", icon: "🏔️", photo: "almaty.jpg", text: "Standing on top of Shymbulak, feeling like we were on top of the world." },
-    { title: "Prague & Budapest", icon: "🏰", photo: "budapest.jpg", text: "From Chimney Cakes to the wild lights of the Ruin Bars. Europe was magic with you." },
-    { title: "Japan Trip", icon: "🍣", photo: "japan.jpg", text: "Lost in translation but found in each other's company." },
-    { title: "Long Distance & Bangalore", text: "The late-night calls and the airport goodbyes. Every mile made us stronger.", icon: "✈️", photo: "bangalore.jpg" },
-    { title: "Philippines", icon: "🏝️", photo: "philippines.jpg", text: "Island hopping and realizing there's no one else I'd rather explore the world with." },
-    { title: "Our Shaadi", icon: "💍", photo: "shaadi.jpg", text: "Our Royal moment. The beginning of a legacy in our Haveli.", isRoyal: true },
-    { title: "The Future", icon: "💝", photo: "valentine.jpg", text: "I want every single milestone for the rest of my life to be with you. \n\n Will you be my Valentine?", isRoyal: true, isFinal: true }
+const MILESTONES = [
+    { name: "Abu Dhabi", icon: "✨", item: "☕", bg: "#fff9f0", story: "Our first meeting. The desert sun had nothing on your smile.", photo: "" },
+    { name: "Our Early Dates", icon: "🎈", item: "🍦", bg: "#fff0f5", story: "Getting to know you was my favorite adventure.", photo: "" },
+    { name: "Almaty, Kazakhstan", icon: "🏔️", item: "❄️", bg: "#f0f8ff", story: "The Shymbulak mountains were cold, but you kept me warm.", photo: "" },
+    { name: "Prague & Budapest", icon: "🏰", item: "🍺", bg: "#f7f0ff", story: "From the Charles Bridge to the glow of the Ruin Bars.", photo: "" },
+    { name: "Japan Journey", icon: "🌸", item: "🍣", bg: "#fff0f0", story: "Walking through cherry blossoms in Tokyo with you.", photo: "" },
+    { name: "Long Distance", icon: "✈️", item: "💌", bg: "#f0f5f5", story: "Every airport goodbye was just a countdown to the next hello.", photo: "" },
+    { name: "Philippines", icon: "🏝️", item: "🥥", bg: "#f0fff4", story: "Island sunsets and the realization that you're my forever.", photo: "" },
+    { name: "The Shaadi", icon: "💍", item: "🔔", bg: "#4a0000", story: "Our Royal Mahal. The day we promised forever.", royal: true, photo: "" },
+    { name: "The Future", icon: "💝", item: "❤️", bg: "#300000", story: "I want every tomorrow to start with you.\n\nWill you be my Valentine?", royal: true, final: true, photo: "" }
 ];
 
-class JourneyGame extends Phaser.Scene {
-    constructor() { super('JourneyGame'); }
+class JourneyScene extends Phaser.Scene {
+    constructor() { super('JourneyScene'); }
 
     create() {
-        const { width, height } = this.scale;
-        this.currentIdx = 0;
+        this.idx = 0;
+        this.collected = 0;
         this.isPaused = false;
-
-        // 1. Create a Parallax Starfield
-        this.stars = this.add.group({ key: 'star', frameQuantity: 100 });
-        for(let i=0; i<150; i++) {
-            let s = this.add.circle(Phaser.Math.Between(0, width), Phaser.Math.Between(-height*10, height), 1, 0xffffff, 0.5);
-            s.setScrollFactor(Phaser.Math.FloatBetween(0.1, 0.5));
-        }
-
-        // 2. Setup Player (Replace Emoji with an image if you like)
-        this.player = this.add.text(width/2, height - 100, '🚀', { fontSize: '42px' }).setOrigin(0.5);
+        
+        // 1. Setup Camera and Background
+        this.cameras.main.setBackgroundColor(MILESTONES[0].bg);
+        
+        // 2. Player (Cute Heart Avatar)
+        this.player = this.add.text(this.scale.width/2, this.scale.height - 100, '☁️', { fontSize: '60px' }).setOrigin(0.5);
         this.physics.add.existing(this.player);
         this.player.body.setCollideWorldBounds(true);
+        
+        // 3. Floating Items
+        this.items = this.physics.add.group();
+        this.spawnItems();
 
-        // 3. Setup Milestones
-        this.milestones = this.physics.add.group();
-        JOURNEY_DATA.forEach((data, i) => {
-            let m = this.add.text(width/2, (height - 200) - (i * 600), data.icon, { fontSize: '80px' }).setOrigin(0.5);
-            this.physics.add.existing(m);
-            m.setData('info', { ...data, index: i });
-            this.milestones.add(m);
-            
-            // Subtle glow effect
-            this.tweens.add({ targets: m, scale: 1.1, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-        });
-
-        // 4. Camera Follow
-        this.cameras.main.startFollow(this.player, true, 0.1, 0.1, 0, 150);
-        this.cameras.main.setBackgroundColor('#050510');
-
-        // 5. Controls
+        // 4. Input
         this.cursors = this.input.keyboard.createCursorKeys();
         
-        // 6. Collision
-        this.physics.add.overlap(this.player, this.milestones, (p, m) => {
-            let info = m.getData('info');
-            if(info.index === this.currentIdx) {
-                this.triggerMilestone(info);
-                m.destroy();
-                this.currentIdx++;
-            }
+        // 5. Logic
+        this.physics.add.overlap(this.player, this.items, (p, item) => {
+            item.destroy();
+            this.collected++;
+            document.getElementById('fill').style.width = (this.collected/3 * 100) + '%';
+            if(this.collected >= 3) this.triggerModal();
         });
+    }
+
+    spawnItems() {
+        for(let i=0; i<3; i++) {
+            let x = Phaser.Math.Between(100, this.scale.width - 100);
+            let y = Phaser.Math.Between(100, this.scale.height - 300);
+            let it = this.add.text(x, y, MILESTONES[this.idx].item, { fontSize: '40px' }).setOrigin(0.5);
+            this.physics.add.existing(it);
+            this.items.add(it);
+            
+            this.tweens.add({ targets: it, y: y-20, duration: 1500, yoyo: true, repeat: -1 });
+        }
     }
 
     update() {
-        if(this.isPaused) {
-            this.player.body.setVelocity(0);
-            return;
-        }
+        if(this.isPaused) { this.player.body.setVelocity(0); return; }
+        
+        let speed = 400;
+        if(this.cursors.left.isDown) this.player.body.setVelocityX(-speed);
+        else if(this.cursors.right.isDown) this.player.body.setVelocityX(speed);
+        else this.player.body.setVelocityX(0);
 
-        const moveSpeed = 300;
-        let isMoving = this.cursors.up.isDown || this.input.activePointer.isDown;
-
-        if (isMoving) {
-            this.player.body.setVelocityY(-moveSpeed);
-            // Change bg color gradually as we go higher
-            if(this.currentIdx > 6) {
-                this.cameras.main.setBackgroundColor('#2a0000'); // Shifting to Royal
-            }
+        if(this.cursors.up.isDown || this.input.activePointer.isDown) {
+            this.player.body.setVelocityY(-speed);
+            this.player.setText('🕊️'); // Character "flies"
         } else {
-            this.player.body.setVelocityY(0);
+            this.player.body.setVelocityY(speed/2);
+            this.player.setText('☁️');
         }
-
-        if (this.cursors.left.isDown) this.player.x -= 5;
-        if (this.cursors.right.isDown) this.player.x += 5;
     }
 
-    triggerMilestone(data) {
+    triggerModal() {
         this.isPaused = true;
-        const modal = document.getElementById('story-modal');
-        const title = document.getElementById('m-title');
-        const text = document.getElementById('m-text');
-        const img = document.getElementById('m-img');
-        const placeholder = document.getElementById('img-placeholder');
-        const btn = document.getElementById('m-btn');
-
-        // Theme check
-        if(data.isRoyal) modal.classList.add('royal');
-        else modal.classList.remove('royal');
-
-        title.innerText = data.title;
-        text.innerText = data.text;
+        const m = MILESTONES[this.idx];
+        const modal = document.getElementById('modal');
         
-        if(data.photo) {
-            img.src = data.photo;
-            img.style.display = 'block';
-            placeholder.style.display = 'none';
-        } else {
-            img.style.display = 'none';
-            placeholder.style.display = 'inline';
+        document.getElementById('m-title').innerText = m.name;
+        document.getElementById('m-text').innerText = m.story;
+        document.getElementById('location-tag').innerText = m.name;
+        
+        if(m.royal) modal.classList.add('royal');
+        
+        if(m.photo) {
+            document.getElementById('m-img').src = m.photo;
+            document.getElementById('m-img').style.display = "block";
+            document.getElementById('m-label').style.display = "none";
         }
 
-        if(data.isFinal) btn.innerText = "YES! I'LL BE YOUR VALENTINE ❤️";
-
-        modal.classList.add('active');
+        modal.style.display = 'block';
     }
 }
 
 const config = {
     type: Phaser.AUTO,
-    width: window.innerWidth > 500 ? 500 : window.innerWidth,
+    width: window.innerWidth,
     height: window.innerHeight,
     parent: 'game-container',
     physics: { default: 'arcade' },
-    scene: JourneyGame
+    scene: JourneyScene
 };
 
 const game = new Phaser.Game(config);
 
-function closeModal() {
-    const modal = document.getElementById('story-modal');
-    modal.classList.remove('active');
-    game.scene.scenes[0].isPaused = false;
+function nextMilestone() {
+    const scene = game.scene.scenes[0];
+    document.getElementById('modal').style.display = 'none';
+    
+    if(scene.idx < MILESTONES.length - 1) {
+        scene.idx++;
+        scene.collected = 0;
+        document.getElementById('fill').style.width = '0%';
+        scene.cameras.main.setBackgroundColor(MILESTONES[scene.idx].bg);
+        scene.spawnItems();
+        scene.isPaused = false;
+    }
 }
 </script>
-
 </body>
 </html>
