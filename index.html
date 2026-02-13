@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Journey | Valentine's Proposal</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
+    <style>
+        body { margin: 0; background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Georgia', serif; }
+        #game-container { border: 4px solid #d4af37; border-radius: 10px; overflow: hidden; }
+        
+        /* The Story Pop-up */
+        .milestone-overlay {
+            position: absolute; display: none; background: #fffdf5;
+            padding: 25px; border-radius: 15px; text-align: center; 
+            max-width: 85%; border: 3px solid #d4af37;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100;
+        }
+
+        /* Shaadi Theme Styling */
+        .shaadi-theme { background: #600000 !important; color: #ffd700 !important; border-color: #ffd700 !important; }
+        
+        h2 { margin-top: 0; color: #800000; font-family: 'Playfair Display', serif; }
+        .shaadi-theme h2 { color: #ffd700; }
+        
+        .img-placeholder {
+            width: 100%; height: 180px; background: #ddd; 
+            margin: 15px 0; border-radius: 8px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; font-style: italic;
+        }
+        
+        button { 
+            background: #800000; color: #ffd700; border: 1px solid #ffd700; 
+            padding: 12px 25px; border-radius: 25px; cursor: pointer; 
+            font-size: 16px; font-weight: bold; transition: 0.3s;
+        }
+        button:hover { background: #a00000; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+<div id="milestone-modal" class="milestone-overlay">
+    <h2 id="m-title"></h2>
+    <p id="m-text"></p>
+    <div class="img-placeholder" id="m-img-container">
+        <img id="m-photo" src="" style="width:100%; height:100%; object-fit:cover; display:none;">
+        <span id="m-label">Photo of us here</span>
+    </div>
+    <button id="m-btn" onclick="resumeGame()">Continue the Journey →</button>
+</div>
+
+<script>
+const storyData = [
+    { title: "First Meeting: Abu Dhabi", text: "Where the desert sun met the start of everything.", icon: "🕌", photo: "" },
+    { title: "The Early Days", text: "Exploring life and falling for you, one date at a time.", icon: "👩‍❤️‍👨", photo: "" },
+    { title: "Almaty, Kazakhstan", text: "The breathtaking views from Shymbulak Peak and snowy walks.", icon: "🏔️", photo: "" },
+    { title: "Prague & Budapest", text: "From the Charles Bridge to the neon lights of Budapest's Ruin Bars.", icon: "🍻", photo: "" },
+    { title: "Japan Trip", text: "Finding magic in Tokyo's streets and Kyoto's temples.", icon: "🍣", photo: "" },
+    { title: "Long Distance & Bangalore", text: "Distance meant nothing because the destination was always you.", icon: "✈️", photo: "" },
+    { title: "Philippines", text: "Sun, sand, and the clarity of knowing you're the one.", icon: "🏝️", photo: "" },
+    { title: "The Shaadi", text: "Our Royal Mahal moment. Two families becoming one.", icon: "💍", photo: "" },
+    { title: "The Future...", text: "I want every milestone to be with you. Will you be my Valentine?", icon: "💝", photo: "" }
+];
+
+const config = {
+    type: Phaser.AUTO,
+    width: 400,
+    height: 600,
+    parent: 'game-container',
+    physics: { default: 'arcade', arcade: { gravity: { y: 0 } } },
+    scene: { preload: preload, create: create, update: update }
+};
+
+const game = new Phaser.Game(config);
+let player, cursors, milestones, currentMilestone = 0;
+
+function preload() {
+    // Optional: this.load.image('bg', 'your-background.jpg');
+}
+
+function create() {
+    // Add a gradient or scrolling background effect
+    this.add.text(60, 500, 'Hold UP or TAP to travel', { fontSize: '18px', fill: '#d4af37' });
+
+    // Player (You can replace '🚀' with a small photo of yourself!)
+    player = this.add.text(200, 550, '🚀', { fontSize: '40px' }).setOrigin(0.5);
+    this.physics.add.existing(player);
+    player.body.setCollideWorldBounds(true);
+
+    milestones = this.physics.add.group();
+
+    for (let i = 0; i < storyData.length; i++) {
+        // Space milestones out vertically
+        let m = this.add.text(200, 300 - (i * 500), storyData[i].icon, { fontSize: '80px' }).setOrigin(0.5);
+        this.physics.add.existing(m);
+        m.setData('index', i);
+        milestones.add(m);
+    }
+
+    cursors = this.input.keyboard.createCursorKeys();
+
+    this.physics.add.overlap(player, milestones, (p, m) => {
+        if (m.getData('index') === currentMilestone) {
+            triggerMilestone(m.getData('index'));
+            m.destroy(); // Remove the icon once collected
+            currentMilestone++;
+        }
+    });
+}
+
+function update() {
+    let speed = 200;
+    let isMoving = cursors.up.isDown || this.input.activePointer.isDown;
+
+    if (isMoving) {
+        milestones.children.entries.forEach(m => m.body.velocity.y = speed);
+    } else {
+        milestones.children.entries.forEach(m => m.body.velocity.y = 0);
+    }
+
+    // Side to side movement
+    if (cursors.left.isDown) player.x -= 4;
+    if (cursors.right.isDown) player.x += 4;
+}
+
+function triggerMilestone(index) {
+    game.loop.pause();
+    const data = storyData[index];
+    const modal = document.getElementById('milestone-modal');
+    
+    // Apply Shaadi theme for the last two sections
+    if (index >= 7) {
+        modal.classList.add('shaadi-theme');
+    } else {
+        modal.classList.remove('shaadi-theme');
+    }
+
+    document.getElementById('m-title').innerText = data.title;
+    document.getElementById('m-text').innerText = data.text;
+    modal.style.display = 'block';
+
+    if (index === storyData.length - 1) {
+        document.getElementById('m-btn').innerText = "YES! ❤️";
+    }
+}
+
+function resumeGame() {
+    document.getElementById('milestone-modal').style.display = 'none';
+    game.loop.resume();
+}
+</script>
+</body>
+</html>
