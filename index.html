@@ -3,331 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Forever Walk</title>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+    <title>The Journey to Forever</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sky-1: linear-gradient(to bottom, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); /* Soft Pink */
-            --sky-2: linear-gradient(120deg, #f6d365 0%, #fda085 100%); /* Sunset */
-            --sky-3: linear-gradient(to top, #30cfd0 0%, #330867 100%); /* Night/Snow */
-            --sky-4: linear-gradient(to top, #9796f0 0%, #fbc7d4 100%); /* Dreamy */
-            --sky-shaadi: linear-gradient(to bottom, #800000, #2c0000); /* Royal */
+            --speed: 0.6s; /* Walk cycle speed */
         }
 
         body {
-            margin: 0; overflow: hidden; font-family: 'Nunito', sans-serif;
-            background: #ff9a9e; /* Fallback */
-            user-select: none;
+            margin: 0; overflow: hidden; background: #000;
+            font-family: 'Lato', sans-serif;
         }
 
-        /* --- THE WORLD LAYERS (PARALLAX) --- */
-        #game-container {
-            position: absolute; width: 100%; height: 100%; overflow: hidden;
+        /* --- THE VIEWPORT --- */
+        #viewport {
+            position: relative; width: 100vw; height: 100vh;
+            overflow: hidden;
         }
 
-        .layer {
-            position: absolute; top: 0; left: 0; height: 100%;
-            will-change: transform; pointer-events: none;
+        /* --- WORLD CONTAINER (Moves left as you walk right) --- */
+        #world {
+            position: absolute; top: 0; left: 0;
+            height: 100%; display: flex;
+            transition: transform 0.1s linear; /* smooth movement */
         }
 
-        /* Sky Layer (The Background Color) */
-        #sky-layer {
-            width: 100%; height: 100%; z-index: -2;
-            background: var(--sky-2);
-            transition: background 2s ease;
+        /* --- BIOMES (The Backgrounds) --- */
+        .biome {
+            position: relative; width: 2000px; height: 100%;
+            flex-shrink: 0; overflow: hidden;
         }
 
-        /* Sun/Moon Elements */
-        #celestial-body {
-            position: absolute; top: 10%; right: 20%; width: 100px; height: 100px;
-            background: #fff; border-radius: 50%; opacity: 0.8;
-            box-shadow: 0 0 40px rgba(255,255,255,0.6);
-            transition: transform 100s linear;
+        /* 1. Desert (Abu Dhabi) */
+        .biome.desert { background: linear-gradient(to bottom, #FF8008, #FFC837); }
+        .biome.desert .scenery {
+            position: absolute; bottom: 0; width: 100%; height: 300px;
+            background: linear-gradient(180deg, transparent 0%, rgba(166, 108, 0, 0.4) 100%);
+            clip-path: polygon(0% 100%, 20% 40%, 40% 90%, 60% 30%, 80% 80%, 100% 100%);
         }
 
-        /* Background Art (Mountains, City, Clouds) */
-        #bg-art {
-            display: flex; width: 10000px; /* Very wide world */
-            align-items: flex-end; height: 100%; padding-bottom: 100px;
-            z-index: -1;
+        /* 2. City Night (Europe/Dating) */
+        .biome.city { background: linear-gradient(to bottom, #0F2027, #203A43, #2C5364); }
+        .biome.city .moon {
+            position: absolute; top: 100px; right: 200px; width: 80px; height: 80px;
+            background: #fff; border-radius: 50%; box-shadow: 0 0 40px #fff;
+        }
+        .biome.city .skyline {
+            position: absolute; bottom: 0; width: 100%; height: 250px;
+            background: #081418; 
+            clip-path: polygon(0% 100%, 10% 20%, 15% 20%, 15% 100%, 20% 100%, 20% 40%, 30% 40%, 30% 100%, 40% 100%, 40% 10%, 55% 10%, 55% 100%, 65% 100%, 65% 50%, 80% 50%, 80% 100%, 100% 100%);
         }
 
-        /* Procedural Scenery Items */
-        .scenery-item {
-            position: absolute; bottom: 100px;
-            opacity: 0.7; transition: opacity 0.5s;
+        /* 3. Mountains (Almaty) */
+        .biome.snow { background: linear-gradient(to bottom, #83a4d4, #b6fbff); }
+        .biome.snow .peak {
+            position: absolute; bottom: 0; border-left: 200px solid transparent; border-right: 200px solid transparent;
+            border-bottom: 500px solid rgba(255,255,255,0.8);
         }
 
-        /* Ground */
-        #ground {
-            position: absolute; bottom: 0; width: 100%; height: 100px;
-            background: #fff; opacity: 0.3; z-index: 5;
-            backdrop-filter: blur(5px); border-top: 1px solid rgba(255,255,255,0.5);
+        /* 4. Japan (Sakura) */
+        .biome.japan { background: linear-gradient(to bottom, #ff9a9e, #fecfef); }
+        .biome.japan .tree {
+            position: absolute; bottom: 0; left: 100px; width: 10px; height: 150px; background: #5d4037;
+        }
+        .biome.japan .blossoms {
+            position: absolute; bottom: 120px; left: 50px; width: 120px; height: 120px;
+            background: #ffb7b2; border-radius: 50%; opacity: 0.8;
         }
 
-        /* --- THE PLAYER (SVG STICKMAN) --- */
-        #player-container {
+        /* 5. Royal (Shaadi) */
+        .biome.royal { background: linear-gradient(to bottom, #4a0000, #900000); }
+        .biome.royal .pillar {
+            position: absolute; bottom: 0; width: 60px; height: 100%;
+            background: linear-gradient(90deg, #d4af37, #f1c40f, #d4af37);
+            border-left: 5px solid #b7950b; border-right: 5px solid #b7950b;
+        }
+
+        /* --- THE SPRITE CHARACTER --- */
+        #player {
             position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-            width: 80px; height: 140px; z-index: 100;
+            width: 64px; height: 64px; z-index: 100;
         }
 
-        svg { overflow: visible; }
-        .limb { stroke: #333; stroke-width: 4; stroke-linecap: round; fill: none; }
-        .head { fill: #333; }
-        
-        /* --- MILESTONE MARKERS (POLAROIDS) --- */
-        #items-layer {
-            display: flex; position: absolute; top: 0; left: 0; height: 100%;
-            align-items: center; z-index: 10;
+        /* REPLACE THIS SECTION TO USE YOUR OWN SPRITE!
+           1. Upload a 'sprite.png' (a strip of 4 frames walking right).
+           2. Uncomment background-image.
+           3. Remove background-color (the red box).
+        */
+        .character-sprite {
+            width: 100%; height: 100%;
+            /* background-image: url('sprite.png'); */ 
+            background-color: #ff4d6d; /* Placeholder Red Box */
+            border-radius: 10px; box-shadow: 0 0 20px rgba(255, 77, 109, 0.5);
+            background-size: 400% 100%; /* 4 frames = 400% width */
+            background-repeat: no-repeat;
         }
 
-        .milestone {
+        /* The Animation Class */
+        .walking {
+            animation: walk-anim var(--speed) steps(3) infinite; /* steps(3) for 4 frames */
+        }
+
+        @keyframes walk-anim {
+            from { background-position: 0% 0; }
+            to { background-position: 100% 0; }
+        }
+
+        /* --- MEMORY CARDS (Floating Polaroids) --- */
+        .memory {
             position: absolute; top: 15%; 
-            width: 320px; background: white; padding: 15px 15px 50px 15px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-            border-radius: 4px; transform: scale(0.8) translateY(50px);
-            opacity: 0; transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 300px; padding: 15px 15px 40px 15px;
+            background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: translateY(100px) scale(0.9); opacity: 0;
+            transition: all 0.8s ease-out;
+            z-index: 50; text-align: center;
         }
 
-        .milestone.visible { transform: scale(1) translateY(0) rotate(var(--r)); opacity: 1; }
+        .memory.active { transform: translateY(0) scale(1) rotate(var(--rot)); opacity: 1; }
         
-        .photo-area {
-            width: 100%; height: 280px; background: #eee; 
-            margin-bottom: 20px; overflow: hidden; position: relative;
-        }
-        .photo-area img { width: 100%; height: 100%; object-fit: cover; }
-        
-        h2 { font-family: 'Caveat', cursive; font-size: 2.5rem; margin: 0; color: #333; line-height: 1; }
-        p { font-size: 0.95rem; color: #666; margin-top: 10px; line-height: 1.5; }
+        .memory img { width: 100%; height: 250px; object-fit: cover; background: #eee; margin-bottom: 15px; }
+        .memory h2 { font-family: 'Cinzel', serif; margin: 0 0 5px 0; color: #333; font-size: 1.5rem; }
+        .memory p { font-size: 0.9rem; color: #666; margin: 0; line-height: 1.4; }
 
-        /* --- UI & CONTROLS --- */
-        #ui-hint {
+        .royal-card { border: 4px solid #d4af37; background: #fffdf0; }
+        .royal-card h2 { color: #800000; }
+
+        /* --- UI --- */
+        #controls-hint {
             position: fixed; bottom: 30px; width: 100%; text-align: center;
-            color: rgba(0,0,0,0.4); font-weight: bold; font-size: 14px;
-            text-transform: uppercase; letter-spacing: 2px;
-            animation: pulse 2s infinite; pointer-events: none;
+            color: rgba(255,255,255,0.7); font-size: 14px; letter-spacing: 2px;
+            text-transform: uppercase; animation: pulse 2s infinite; pointer-events: none;
         }
+        @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
         
-        @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
-        
-        /* Floating Particles */
-        .particle {
-            position: absolute; background: white; border-radius: 50%;
-            pointer-events: none; opacity: 0.6;
+        #final-btn {
+            display: none; background: #d4af37; color: #5e0000; border: none;
+            padding: 10px 20px; margin-top: 15px; cursor: pointer; font-weight: bold;
+            font-family: 'Cinzel', serif; text-transform: uppercase;
         }
 
     </style>
 </head>
 <body>
 
-    <div id="sky-layer"></div>
-    <div id="celestial-body"></div>
+    <div id="viewport">
+        <div id="world">
+            
+            <div class="biome desert">
+                <div class="scenery" style="left:0;"></div>
+                <div class="scenery" style="left:50%; opacity:0.5; bottom:-50px;"></div>
+                
+                <div class="memory" style="left: 600px;" data-rot="-2deg">
+                    <img src="abudhabi.jpg">
+                    <h2>Abu Dhabi</h2>
+                    <p>Where the story began. The desert heat couldn't match the spark between us.</p>
+                </div>
+            </div>
 
-    <div id="game-container">
-        
-        <div id="bg-art" class="layer"></div>
+            <div class="biome city">
+                <div class="moon"></div>
+                <div class="skyline"></div>
+                
+                <div class="memory" style="left: 500px;" data-rot="3deg">
+                    <img src="dating.jpg">
+                    <h2>The Early Days</h2>
+                    <p>Coffee dates, long talks, and falling in love.</p>
+                </div>
+                
+                <div class="memory" style="left: 1400px;" data-rot="-1deg">
+                    <img src="budapest.jpg">
+                    <h2>Europe</h2>
+                    <p>Prague castles and Budapest nights. The world is magic with you.</p>
+                </div>
+            </div>
 
-        <div id="items-layer" class="layer"></div>
+            <div class="biome snow">
+                <div class="peak" style="left: 100px;"></div>
+                <div class="peak" style="left: 500px; transform: scale(1.5);"></div>
+                <div class="peak" style="left: 1200px;"></div>
+
+                <div class="memory" style="left: 800px;" data-rot="2deg">
+                    <img src="almaty.jpg">
+                    <h2>Almaty</h2>
+                    <p>Shymbulak peaks. Freezing cold but hearts so warm.</p>
+                </div>
+            </div>
+
+            <div class="biome japan">
+                <div class="tree"></div><div class="blossoms"></div>
+                <div class="tree" style="left:600px"></div><div class="blossoms" style="left:550px"></div>
+                <div class="tree" style="left:1200px"></div><div class="blossoms" style="left:1150px"></div>
+
+                <div class="memory" style="left: 700px;" data-rot="-3deg">
+                    <img src="japan.jpg">
+                    <h2>Japan</h2>
+                    <p>Sakura season and neon lights. Lost in Tokyo together.</p>
+                </div>
+            </div>
+
+            <div class="biome royal">
+                <div class="pillar" style="left: 100px;"></div>
+                <div class="pillar" style="left: 1800px;"></div>
+                
+                <div class="memory royal-card" style="left: 500px;" data-rot="0deg">
+                    <img src="shaadi.jpg">
+                    <h2>The Shaadi</h2>
+                    <p>Our Royal Haveli. The start of our forever.</p>
+                </div>
+
+                <div class="memory royal-card" style="left: 1200px; transform: scale(1.2);" data-rot="0deg">
+                    <img src="valentine.jpg">
+                    <h2>The Future</h2>
+                    <p>I want to walk this path with you forever.<br>Will you be my Valentine?</p>
+                    <button id="final-btn" onclick="alert('❤️ YES! ❤️')">Yes!</button>
+                </div>
+            </div>
+            
+        </div>
     </div>
 
-    <div id="ground"></div>
-
-    <div id="player-container">
-        <svg width="80" height="140" viewBox="0 0 100 200">
-            <circle cx="50" cy="30" r="18" class="head" />
-            <line x1="50" y1="48" x2="50" y2="110" class="limb" />
-            <g id="arm-l"> <line x1="50" y1="60" x2="20" y2="90" class="limb" /> </g>
-            <g id="arm-r"> <line x1="50" y1="60" x2="80" y2="90" class="limb" /> </g>
-            <g id="leg-l"> 
-                <line x1="50" y1="110" x2="30" y2="160" class="limb" /> 
-                <line x1="30" y1="160" x2="20" y2="195" class="limb" /> 
-            </g>
-            <g id="leg-r"> 
-                <line x1="50" y1="110" x2="70" y2="160" class="limb" />
-                <line x1="70" y1="160" x2="80" y2="195" class="limb" />
-            </g>
-        </svg>
+    <div id="player">
+        <div class="character-sprite" id="sprite"></div>
     </div>
 
-    <div id="ui-hint">Hold Right Arrow to Walk</div>
+    <div id="controls-hint">Hold RIGHT ARROW to Walk</div>
 
     <script>
-        /* --- CONFIGURATION --- */
-        // Add your photos here. Ensure files are in the same folder.
-        const MILESTONES = [
-            { pos: 400, title: "Abu Dhabi", text: "The desert heat, the first hello, and the start of 'us'.", img: "abudhabi.jpg", theme: "desert" },
-            { pos: 1200, title: "The Spark", text: "Coffee dates, movie nights, and realizing you were the one.", img: "dating.jpg", theme: "sunset" },
-            { pos: 2000, title: "Almaty", text: "Freezing on Shymbulak but feeling so warm inside.", img: "almaty.jpg", theme: "snow" },
-            { pos: 2800, title: "Europe", text: "Prague castles and Budapest ruin bars. A fairytale trip.", img: "budapest.jpg", theme: "night" },
-            { pos: 3600, title: "Japan", text: "Neon lights, sakura, and getting lost in Tokyo together.", img: "japan.jpg", theme: "sakura" },
-            { pos: 4400, title: "Long Distance", text: "Bangalore to the world. Distance meant nothing.", img: "bangalore.jpg", theme: "night" },
-            { pos: 5200, title: "Philippines", text: "Island hopping and the clearest blue waters.", img: "philippines.jpg", theme: "ocean" },
-            { pos: 6000, title: "Our Shaadi", text: "The Royal Haveli. Our families becoming one.", img: "shaadi.jpg", theme: "shaadi" },
-            { pos: 7000, title: "Forever?", text: "I want to keep walking with you. <br><br><b>Will you be my Valentine?</b>", img: "valentine.jpg", theme: "shaadi", isFinal: true }
-        ];
+        const world = document.getElementById('world');
+        const sprite = document.getElementById('sprite');
+        const memories = document.querySelectorAll('.memory');
+        const finalBtn = document.getElementById('final-btn');
 
-        /* --- STATE --- */
-        let worldX = 0;
-        let speed = 0;
-        const MAX_SPEED = 6;
-        const ACCEL = 0.5;
-        const DRAG = 0.8;
-        let keys = { ArrowRight: false, ArrowLeft: false };
+        let position = 0;
+        let isWalking = false;
+        const SPEED = 8; // Adjust walking speed here
 
-        /* --- DOM ELEMENTS --- */
-        const bgLayer = document.getElementById('bg-art');
-        const itemsLayer = document.getElementById('items-layer');
-        const sky = document.getElementById('sky-layer');
-        const playerSvg = document.querySelector('#player-container svg');
-        
-        // Limbs for animation
-        const legL = document.getElementById('leg-l');
-        const legR = document.getElementById('leg-r');
-        const armL = document.getElementById('arm-l');
-        const armR = document.getElementById('arm-r');
-
-        /* --- INITIALIZATION --- */
-        function init() {
-            // Generate Scenery (CSS Art)
-            generateBackgrounds();
-            
-            // Generate Milestones
-            MILESTONES.forEach((m, i) => {
-                const el = document.createElement('div');
-                el.className = 'milestone';
-                el.style.left = m.pos + 'px';
-                el.style.setProperty('--r', (Math.random() * 6 - 3) + 'deg'); // Random rotation
-                
-                let btnHtml = m.isFinal ? `<button onclick="alert('❤️ She said YES! ❤️')" style="margin-top:10px; background:#d4af37; border:none; padding:10px 20px; color:white; cursor:pointer;">YES!</button>` : '';
-
-                el.innerHTML = `
-                    <div class="photo-area"><img src="${m.img}" onerror="this.src='https://via.placeholder.com/300x280?text=Photo+Missing'"></div>
-                    <h2>${m.title}</h2>
-                    <p>${m.text}</p>
-                    ${btnHtml}
-                `;
-                itemsLayer.appendChild(el);
-            });
-
-            // Start Loop
-            requestAnimationFrame(gameLoop);
-        }
-
-        function generateBackgrounds() {
-            // Simple CSS shapes for scenery
-            const themes = {
-                desert: `<div style="width:0; height:0; border-left:100px solid transparent; border-right:100px solid transparent; border-bottom:150px solid rgba(255,255,255,0.4);"></div>`, // Pyramid/Dune
-                snow: `<div style="width:0; height:0; border-left:80px solid transparent; border-right:80px solid transparent; border-bottom:200px solid rgba(255,255,255,0.8);"></div>`, // Mountain
-                city: `<div style="width:60px; height:180px; background:rgba(0,0,0,0.2);"></div>`, // Building
-                sakura: `<div style="width:10px; height:10px; background:pink; border-radius:50%; box-shadow: 10px 10px 0 pink, -10px 20px 0 pink;"></div>` // Flower cluster
-            };
-
-            for(let i=0; i<80; i++) {
-                let div = document.createElement('div');
-                div.className = 'scenery-item';
-                div.style.left = (Math.random() * 8000) + 'px';
-                // Pick shape based on position
-                let content = themes.desert;
-                if(i > 20) content = themes.snow;
-                if(i > 40) content = themes.city;
-                if(i > 60) content = themes.sakura;
-                
-                div.innerHTML = content;
-                bgLayer.appendChild(div);
+        // Keyboard Logic
+        window.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') {
+                isWalking = true;
+                sprite.classList.add('walking');
+                // Flip sprite to face right
+                sprite.style.transform = 'scaleX(1)';
             }
-        }
+        });
 
-        /* --- INPUT --- */
-        window.addEventListener('keydown', e => { if(keys.hasOwnProperty(e.code)) keys[e.code] = true; });
-        window.addEventListener('keyup', e => { if(keys.hasOwnProperty(e.code)) keys[e.code] = false; });
-        
-        // Touch support for mobile
-        window.addEventListener('touchstart', () => keys.ArrowRight = true);
-        window.addEventListener('touchend', () => keys.ArrowRight = false);
-
-        /* --- GAME LOOP --- */
-        let walkCycle = 0;
-
-        function gameLoop() {
-            // 1. Movement Logic
-            if (keys.ArrowRight) speed += ACCEL;
-            else if (keys.ArrowLeft) speed -= ACCEL;
-            else speed *= DRAG; // Friction
-
-            // Clamp Speed
-            if(speed > MAX_SPEED) speed = MAX_SPEED;
-            if(speed < -MAX_SPEED) speed = -MAX_SPEED;
-            if(Math.abs(speed) < 0.1) speed = 0;
-
-            worldX += speed;
-            if (worldX < 0) worldX = 0; // Can't go back before start
-
-            // 2. Parallax
-            itemsLayer.style.transform = `translateX(${-worldX}px)`; // Foreground moves fast
-            bgLayer.style.transform = `translateX(${-worldX * 0.5}px)`; // Background moves slow
-
-            // 3. Stickman Animation (Procedural Gait)
-            if (Math.abs(speed) > 0.5) {
-                walkCycle += 0.2;
-                let legAngle = Math.sin(walkCycle) * 30;
-                let kneeBend = Math.abs(Math.cos(walkCycle)) * 20;
-                
-                // SVG Transforms
-                legL.setAttribute('transform', `rotate(${legAngle}, 50, 110)`);
-                legR.setAttribute('transform', `rotate(${-legAngle}, 50, 110)`);
-                
-                armL.setAttribute('transform', `rotate(${-legAngle}, 50, 60)`);
-                armR.setAttribute('transform', `rotate(${legAngle}, 50, 60)`);
-            } else {
-                // Return to idle
-                legL.setAttribute('transform', `rotate(0, 50, 110)`);
-                legR.setAttribute('transform', `rotate(0, 50, 110)`);
+        window.addEventListener('keyup', (e) => {
+            if(e.key === 'ArrowRight') {
+                isWalking = false;
+                sprite.classList.remove('walking');
             }
-            
-            // Flip character if moving left
-            if (speed < -0.1) playerSvg.style.transform = "scaleX(-1)";
-            else if (speed > 0.1) playerSvg.style.transform = "scaleX(1)";
+        });
 
-            // 4. Atmosphere & Milestone Detection
-            checkMilestones();
-            updateSky();
+        // Touch Logic (Mobile)
+        window.addEventListener('touchstart', () => { isWalking = true; sprite.classList.add('walking'); });
+        window.addEventListener('touchend', () => { isWalking = false; sprite.classList.remove('walking'); });
 
-            requestAnimationFrame(gameLoop);
-        }
+        // Game Loop
+        function loop() {
+            if(isWalking) {
+                position += SPEED;
+                // Move the world LEFT to create illusion of walking RIGHT
+                world.style.transform = `translateX(-${position}px)`;
+            }
 
-        function checkMilestones() {
-            const milestones = document.querySelectorAll('.milestone');
-            milestones.forEach(m => {
-                // Get the left position relative to current scroll
-                const rect = m.getBoundingClientRect();
-                const centerScreen = window.innerWidth / 2;
+            // Check for Memories coming into view
+            memories.forEach(card => {
+                // Get absolute position of the card inside the scrolling world
+                // We calculate the card's world X position relative to current scroll
                 
-                // If it's near the center of screen
-                if (Math.abs(rect.left + rect.width/2 - centerScreen) < 300) {
-                    m.classList.add('visible');
-                } else {
-                    m.classList.remove('visible');
+                // Approximate logic: 
+                // The card is inside a biome. We need to know the total offset.
+                // But simpler: just check bounding box relative to viewport.
+                const rect = card.getBoundingClientRect();
+                
+                // If card is near center of screen (width/2)
+                if(rect.left < window.innerWidth * 0.7 && rect.right > 0) {
+                    card.classList.add('active');
+                    // Apply the rotation stored in data-rot
+                    card.style.setProperty('--rot', card.getAttribute('data-rot'));
+                    
+                    // Reveal button if it's the last card
+                    if(card.querySelector('button')) {
+                        document.getElementById('final-btn').style.display = 'inline-block';
+                    }
                 }
             });
+
+            requestAnimationFrame(loop);
         }
 
-        function updateSky() {
-            // Determine which theme we are in based on WorldX
-            const themes = [
-                { limit: 1000, style: 'var(--sky-2)' }, // Desert
-                { limit: 2500, style: 'var(--sky-3)' }, // Snow
-                { limit: 4000, style: 'var(--sky-4)' }, // Dreamy
-                { limit: 6000, style: 'var(--sky-shaadi)' } // Royal
-            ];
-
-            let activeStyle = themes[0].style;
-            for(let t of themes) {
-                if (worldX > t.limit) activeStyle = t.style;
-            }
-            sky.style.background = activeStyle;
-        }
-
-        init();
+        loop();
     </script>
 </body>
 </html>
