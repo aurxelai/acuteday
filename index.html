@@ -7,8 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --walk-speed: 0.8s; /* Adjust if your sprite moves too fast/slow */
-            --biome-width: 1500px; /* How long each section is */
+            --speed: 0.8s;
+            --biome-width: 1500px; 
         }
 
         body {
@@ -23,12 +23,11 @@
             overflow: hidden;
         }
 
-        /* --- THE WORLD (Moves left/right) --- */
+        /* --- THE WORLD --- */
         #world {
             position: absolute; top: 0; left: 0;
             height: 100%; display: flex;
             will-change: transform;
-            /* Smooths out the start/stop movement */
             transition: transform 0.1s linear;
         }
 
@@ -39,168 +38,130 @@
             border-right: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* --- 1. ABU DHABI (Desert) --- */
+        /* 1. ABU DHABI */
         .biome.desert { background: linear-gradient(to bottom, #FF8008, #FFC837); }
-        .biome.desert .sun {
-            position: absolute; top: 50px; right: 200px; width: 100px; height: 100px;
-            background: #fff; border-radius: 50%; box-shadow: 0 0 40px #ffeb3b; opacity: 0.8;
-        }
         .biome.desert .dune {
             position: absolute; bottom: 0; width: 100%; height: 350px;
             background: #d38d00; 
-            clip-path: polygon(0 100%, 15% 50%, 40% 100%, 60% 40%, 100% 100%);
-            opacity: 0.8;
-        }
-        .biome.desert .dune-fg {
-            position: absolute; bottom: 0; width: 100%; height: 200px;
-            background: #e6a315; 
-            clip-path: polygon(0 100%, 30% 100%, 50% 20%, 80% 100%, 100% 100%);
+            clip-path: polygon(0 100%, 20% 40%, 40% 90%, 60% 30%, 80% 80%, 100% 100%);
         }
 
-        /* --- 2. DATING (City Sunset) --- */
+        /* 2. DATING */
         .biome.dating { background: linear-gradient(120deg, #f6d365 0%, #fda085 100%); }
         .biome.dating .skyline {
             position: absolute; bottom: 0; width: 100%; height: 250px;
-            background: #2c3e50; opacity: 0.4;
-            clip-path: polygon(0% 100%, 5% 40%, 10% 40%, 10% 100%, 15% 100%, 15% 20%, 25% 20%, 25% 100%, 30% 100%, 35% 50%, 45% 50%, 45% 100%, 55% 100%, 55% 10%, 65% 10%, 65% 100%, 100% 100%);
+            background: rgba(0,0,0,0.2);
+            clip-path: polygon(0% 100%, 10% 20%, 20% 20%, 20% 100%, 30% 100%, 30% 40%, 40% 40%, 40% 100%, 50% 100%, 50% 10%, 60% 10%, 60% 100%, 70% 100%, 70% 60%, 80% 60%, 80% 100%, 100% 100%);
         }
 
-        /* --- 3. ALMATY (Mountains) --- */
+        /* 3. ALMATY */
         .biome.almaty { background: linear-gradient(to bottom, #83a4d4, #b6fbff); }
-        .biome.almaty .cloud {
-            position: absolute; background: rgba(255,255,255,0.7); border-radius: 50px;
-        }
         .biome.almaty .mountain {
             position: absolute; bottom: 0; width: 0; height: 0;
             border-left: 300px solid transparent; border-right: 300px solid transparent;
             border-bottom: 600px solid rgba(255,255,255,0.9);
         }
-        .biome.almaty .mountain-fg {
-            position: absolute; bottom: 0; width: 0; height: 0;
-            border-left: 150px solid transparent; border-right: 150px solid transparent;
-            border-bottom: 300px solid #ddeeff;
-        }
 
-        /* --- 4. EUROPE (Night Castle) --- */
+        /* 4. EUROPE */
         .biome.europe { background: linear-gradient(to bottom, #2b5876, #4e4376); }
-        .biome.europe .moon {
-            position: absolute; top: 80px; left: 100px; width: 60px; height: 60px;
-            background: transparent; box-shadow: -15px 5px 0 0 #fff; border-radius: 50%;
-        }
         .biome.europe .castle {
-            position: absolute; bottom: 0; right: 200px; width: 200px; height: 400px;
-            background: #1a1a2e; 
-            clip-path: polygon(10% 100%, 10% 40%, 0 40%, 50% 0, 100% 40%, 90% 40%, 90% 100%);
+            position: absolute; bottom: 0; right: 200px; width: 200px; height: 350px;
+            background: #222; 
+            clip-path: polygon(10% 100%, 10% 20%, 0 20%, 50% 0, 100% 20%, 90% 20%, 90% 100%);
         }
 
-        /* --- 5. JAPAN (Sakura) --- */
+        /* 5. JAPAN (Redesigned) */
         .biome.japan { background: linear-gradient(to bottom, #ff9a9e, #fecfef); }
-        .biome.japan .torii {
+        
+        /* The Big Torii Gate */
+        .torii-container {
             position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 200px; height: 300px;
-            border-left: 20px solid #8B0000; border-right: 20px solid #8B0000;
-            border-top: 20px solid #8B0000;
+            width: 400px; height: 500px; display: flex; justify-content: center;
         }
-        .biome.japan .torii::after {
-            content: ''; position: absolute; top: 40px; left: -20px; width: 200px; height: 20px; background: #8B0000;
+        .torii-pillar {
+            width: 40px; height: 100%; background: #8B0000;
+            margin: 0 100px; position: relative;
         }
-        .biome.japan .blossom {
-            position: absolute; width: 10px; height: 10px; background: #ff69b4; border-radius: 50%;
-            box-shadow: 20px 20px 0 #ff69b4, -20px 50px 0 #ff69b4;
+        .torii-top {
+            position: absolute; top: 50px; width: 500px; height: 40px;
+            background: #8B0000; border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .torii-top-2 {
+            position: absolute; top: 120px; width: 400px; height: 30px;
+            background: #8B0000;
+        }
+        /* Mount Fuji Silhouette */
+        .fuji {
+            position: absolute; bottom: 0; left: 100px; width: 0; height: 0;
+            border-left: 400px solid transparent; border-right: 400px solid transparent;
+            border-bottom: 300px solid rgba(255,255,255,0.6);
+            z-index: -1;
         }
 
-        /* --- 6. LONG DISTANCE (Space/Plane) --- */
+        /* 6. LONG DISTANCE */
         .biome.distance { background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); }
         .biome.distance .plane {
-            position: absolute; top: 30%; left: 40%; font-size: 80px; opacity: 0.8;
-            transform: rotate(10deg); filter: drop-shadow(0 0 10px white);
-        }
-        .biome.distance .line {
-            position: absolute; top: 35%; left: 0; width: 100%; height: 2px;
-            background: repeating-linear-gradient(to right, rgba(255,255,255,0.5) 0, rgba(255,255,255,0.5) 20px, transparent 20px, transparent 40px);
+            position: absolute; top: 20%; left: 50%; font-size: 80px; color: white; opacity: 0.8;
+            transform: rotate(15deg);
         }
 
-        /* --- 7. PHILIPPINES (Ocean) --- */
+        /* 7. PHILIPPINES */
         .biome.philippines { background: linear-gradient(to bottom, #4facfe, #00f2fe); }
         .biome.philippines .water {
-            position: absolute; bottom: 0; width: 100%; height: 120px;
-            background: rgba(255,255,255,0.3); border-top: 10px solid rgba(255,255,255,0.5);
-            border-radius: 50% 50% 0 0 / 20px 20px 0 0;
-        }
-        .biome.philippines .palm {
-            position: absolute; bottom: 0; left: 100px; font-size: 250px; color: #228B22;
-            transform-origin: bottom center; transform: rotate(-10deg);
+            position: absolute; bottom: 0; width: 100%; height: 150px;
+            background: rgba(255,255,255,0.3); border-radius: 50% 50% 0 0;
         }
 
-        /* --- 8. SHAADI (Royal) --- */
+        /* 8. SHAADI */
         .biome.shaadi { background: linear-gradient(to bottom, #560404, #8a0c0c); }
-        .biome.shaadi .pillar {
-            position: absolute; bottom: 0; width: 60px; height: 100%;
-            background: linear-gradient(to right, #d4af37, #f1c40f, #d4af37);
-        }
         .biome.shaadi .arch {
-            position: absolute; top: 50px; left: 100px; width: 300px; height: 200px;
-            border-top: 30px solid #d4af37; border-radius: 150px 150px 0 0;
+            position: absolute; bottom: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 100%, transparent 40%, #560404 41%);
+            opacity: 0.6;
         }
 
-        /* --- 9. FINALE (White) --- */
+        /* 9. FINALE SCREEN */
         .biome.final { width: 100vw; background: #fffdf5; display: flex; align-items: center; justify-content: center; }
 
-        /* --- THE SPRITE CHARACTER --- */
+        /* --- SPRITE --- */
         #player {
-            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
             width: 64px; height: 64px; z-index: 200;
         }
 
-        /* THIS IS THE ANIMATION BOX */
         .sprite-art {
             width: 100%; height: 100%;
-            /* 1. PUT YOUR SPRITE SHEET HERE */
+            /* 1. UNCOMMENT FOR SPRITE */
             /* background-image: url('sprite.png'); */
             
-            /* 2. PLACEHOLDER (Remove this when you have the image) */
-            background-color: #333; border-radius: 5px; box-shadow: 0 0 20px white;
+            /* 2. PLACEHOLDER */
+            background-color: #333; border-radius: 5px; box-shadow: 0 0 10px white;
             
-            /* 3. SETTINGS */
-            background-size: 400% 100%; /* 4 Frames */
-            background-repeat: no-repeat;
+            background-size: 400% 100%; background-repeat: no-repeat;
             image-rendering: pixelated;
         }
 
-        /* Animation class applied by JS */
-        .walking .sprite-art {
-            animation: walk-cycle var(--walk-speed) steps(3) infinite; 
-        }
+        .walking .sprite-art { animation: walk-cycle var(--speed) steps(3) infinite; }
+        @keyframes walk-cycle { from { background-position: 0% 0; } to { background-position: 100% 0; } }
 
-        /* Keyframes for sliding the sprite sheet */
-        @keyframes walk-cycle {
-            from { background-position: 0% 0; }
-            to { background-position: 100% 0; }
-        }
-
-        /* --- POLAROID MEMORIES --- */
+        /* --- MEMORIES --- */
         .memory {
-            position: absolute; top: 15%; left: 50%; transform: translateX(-50%) translateY(50px);
-            width: 320px; padding: 15px 15px 50px 15px;
-            background: white; box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            opacity: 0; transition: all 1s ease;
-            z-index: 50; text-align: center; border-radius: 4px;
+            position: absolute; top: 15%; width: 320px; padding: 15px 15px 50px 15px;
+            background: white; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            opacity: 0; transition: all 1s ease; z-index: 50; text-align: center;
         }
-
-        .memory.active { transform: translateX(-50%) translateY(0) rotate(var(--rot)); opacity: 1; }
-        
-        .memory img { width: 100%; height: 280px; object-fit: cover; background: #ddd; margin-bottom: 15px; border: 1px solid #eee; }
+        .memory.active { transform: translateY(0) rotate(var(--rot)); opacity: 1; }
+        .memory img { width: 100%; height: 280px; object-fit: cover; background: #eee; margin-bottom: 15px; }
         .memory h2 { font-family: 'Cinzel', serif; margin: 0 0 5px 0; color: #333; font-size: 1.8rem; }
-        .memory p { font-size: 1rem; color: #555; margin: 0; line-height: 1.5; font-weight: 600; }
+        .memory p { font-size: 1rem; color: #555; }
 
-        /* --- PROPOSAL UI --- */
+        /* --- FINAL PROPOSAL UI --- */
         #proposal-box {
             text-align: center; font-family: 'Cinzel', serif; color: #560404;
             opacity: 0; transition: opacity 2s;
         }
-        #proposal-box h1 { font-size: 3.5rem; margin-bottom: 40px; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        
-        .btn-container { position: relative; width: 400px; height: 100px; margin: 0 auto; }
+        #proposal-box h1 { font-size: 3.5rem; margin-bottom: 40px; }
         
         button {
             padding: 15px 40px; font-size: 1.2rem; border: none; cursor: pointer;
@@ -208,68 +169,70 @@
             transition: 0.3s;
         }
         
-        #btn-yes { background: #560404; color: #ffd700; box-shadow: 0 5px 15px rgba(86,4,4,0.3); position: absolute; left: 50px; }
-        #btn-yes:hover { transform: scale(1.1); box-shadow: 0 10px 25px rgba(86,4,4,0.4); }
-        
-        #btn-no { background: #ccc; color: #666; position: absolute; right: 50px; transition: 0.1s; }
+        #btn-yes { background: #560404; color: #ffd700; box-shadow: 0 5px 15px rgba(86,4,4,0.3); }
+        #btn-yes:hover { transform: scale(1.1); }
+        #btn-no { background: #ccc; color: #666; position: absolute; }
 
-        /* --- PARTICLES (Butterflies) --- */
-        .butterfly {
-            position: absolute; width: 8px; height: 8px; background: white;
-            border-radius: 50%; pointer-events: none; opacity: 0.9;
-            box-shadow: 0 0 10px white;
-            animation: flutter 3s infinite ease-in-out;
+        /* --- SUCCESS SCREEN (HIDDEN INITIALLY) --- */
+        #success-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #560404; display: none; align-items: center; justify-content: center;
+            z-index: 9999; flex-direction: column; color: #ffd700; text-align: center;
         }
-        @keyframes flutter {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(20px, -30px); }
+        #success-screen h1 { font-family: 'Cinzel', serif; font-size: 6rem; margin: 0; animation: pulse 2s infinite; }
+        #success-screen p { font-size: 1.5rem; margin-top: 20px; color: rgba(255, 215, 0, 0.8); }
+
+        /* --- CONFETTI --- */
+        .confetti {
+            position: absolute; width: 10px; height: 10px; background: #ffd700;
+            animation: fall 3s linear forwards;
         }
-        
-        #controls { position: fixed; bottom: 20px; width: 100%; text-align: center; color: rgba(255,255,255,0.5); }
+        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
     </style>
 </head>
 <body>
 
+    <div id="success-screen">
+        <h1>I LOVE YOU</h1>
+        <p>Happy Valentine's Day ❤️</p>
+    </div>
+
     <div id="viewport">
         <div id="world">
             
             <div class="biome desert">
-                <div class="sun"></div>
                 <div class="dune"></div>
-                <div class="dune-fg" style="left: 20%"></div>
-                <div class="memory" data-rot="-2deg">
+                <div class="memory" style="left: 600px;" data-rot="-2deg">
                     <img src="abudhabi.jpg">
                     <h2>Abu Dhabi</h2>
-                    <p>The desert sun & our first hello.</p>
+                    <p>Where the desert sun met our first hello.</p>
                 </div>
             </div>
 
             <div class="biome dating">
                 <div class="skyline"></div>
-                <div class="memory" data-rot="2deg">
+                <div class="memory" style="left: 600px;" data-rot="2deg">
                     <img src="dating.jpg">
-                    <h2>The Spark</h2>
-                    <p>Coffee dates and realizing you're the one.</p>
+                    <h2>The Early Days</h2>
+                    <p>Coffee dates, long talks, and falling in love.</p>
                 </div>
             </div>
 
             <div class="biome almaty">
-                <div class="cloud" style="top:50px; left:100px; width:200px; height:60px;"></div>
-                <div class="mountain" style="left:100px"></div>
-                <div class="mountain" style="left:800px; transform: scale(1.5);"></div>
-                <div class="mountain-fg" style="left:500px"></div>
-                <div class="memory" data-rot="-3deg">
+                <div class="mountain" style="left: 200px;"></div>
+                <div class="mountain" style="left: 800px; transform: scale(1.5);"></div>
+                <div class="memory" style="left: 700px;" data-rot="-3deg">
                     <img src="almaty.jpg">
                     <h2>Almaty</h2>
-                    <p>Shymbulak peaks & freezing hands held tight.</p>
+                    <p>Freezing on Shymbulak, but hearts so warm.</p>
                 </div>
             </div>
 
             <div class="biome europe">
-                <div class="moon"></div>
                 <div class="castle"></div>
-                <div class="memory" data-rot="1deg">
+                <div class="memory" style="left: 600px;" data-rot="1deg">
                     <img src="europe.jpg">
                     <h2>Europe</h2>
                     <p>Prague castles & Budapest ruin bars.</p>
@@ -277,20 +240,23 @@
             </div>
 
             <div class="biome japan">
-                <div class="torii"></div>
-                <div class="blossom" style="top:100px; left:200px;"></div>
-                <div class="blossom" style="top:150px; left:600px;"></div>
-                <div class="memory" data-rot="-2deg">
+                <div class="fuji"></div>
+                <div class="torii-container">
+                    <div class="torii-top"></div>
+                    <div class="torii-top-2"></div>
+                    <div class="torii-pillar"></div>
+                    <div class="torii-pillar"></div>
+                </div>
+                <div class="memory" style="left: 600px;" data-rot="-2deg">
                     <img src="japan.jpg">
                     <h2>Japan</h2>
-                    <p>Sakura season & neon nights in Tokyo.</p>
+                    <p>Sakura season and getting lost in Tokyo.</p>
                 </div>
             </div>
 
             <div class="biome distance">
-                <div class="line"></div>
                 <div class="plane">✈️</div>
-                <div class="memory" data-rot="3deg">
+                <div class="memory" style="left: 600px;" data-rot="3deg">
                     <img src="distance.jpg">
                     <h2>Distance</h2>
                     <p>Miles apart, but hearts connected.</p>
@@ -298,20 +264,17 @@
             </div>
 
             <div class="biome philippines">
-                <div class="palm">🌴</div>
                 <div class="water"></div>
-                <div class="memory" data-rot="-1deg">
+                <div class="memory" style="left: 600px;" data-rot="-1deg">
                     <img src="philippines.jpg">
                     <h2>Philippines</h2>
-                    <p>Island hopping & pure happiness.</p>
+                    <p>Sun, sand, and pure happiness.</p>
                 </div>
             </div>
 
             <div class="biome shaadi">
-                <div class="pillar" style="left:50px;"></div>
-                <div class="pillar" style="right:50px;"></div>
                 <div class="arch"></div>
-                <div class="memory" style="border: 4px solid #ffd700;" data-rot="0deg">
+                <div class="memory" style="left: 600px;" data-rot="0deg">
                     <img src="shaadi.jpg">
                     <h2>The Shaadi</h2>
                     <p>Our Royal Haveli. The start of forever.</p>
@@ -321,9 +284,9 @@
             <div class="biome final">
                 <div id="proposal-box">
                     <h1>Will you be my Valentine?</h1>
-                    <div class="btn-container">
-                        <button id="btn-yes" onclick="celebrate()">YES! ❤️</button>
-                        <button id="btn-no" onmouseover="dodge(this)" onclick="dodge(this)">No</button>
+                    <div style="position: relative; height: 60px; width: 300px; margin: 0 auto;">
+                        <button id="btn-yes" onclick="celebrate()" style="position: absolute; left: 0;">YES! ❤️</button>
+                        <button id="btn-no" onmouseover="dodge(this)" style="position: absolute; right: 0;">No</button>
                     </div>
                 </div>
             </div>
@@ -335,122 +298,97 @@
         <div class="sprite-art" id="sprite-el"></div>
     </div>
 
-    <div id="controls">Use LEFT and RIGHT ARROW keys to Walk</div>
-
     <script>
         const world = document.getElementById('world');
-        const player = document.getElementById('player');
         const spriteEl = document.getElementById('sprite-el');
         const memories = document.querySelectorAll('.memory');
         const proposalBox = document.getElementById('proposal-box');
+        const successScreen = document.getElementById('success-screen');
 
-        // State
         let worldX = 0;
-        let speed = 12; // Speed of movement
+        let speed = 12;
         let isMoving = false;
-        let direction = 0; // -1 left, 1 right
+        let direction = 0;
         
-        // Dimensions
-        const viewportWidth = window.innerWidth;
-        const totalWidth = 2000 * 9; // 9 biomes * 2000px
-        const maxScroll = totalWidth - viewportWidth;
+        // Calculate max scroll (Total width - 1 screen width)
+        // 9 Biomes * 1500px = 13500px Total
+        const maxScroll = (1500 * 9) - window.innerWidth;
 
-        // --- GAME LOOP ---
         function loop() {
             if (isMoving) {
-                // Update Position
                 if (direction === 1) worldX += speed;
                 if (direction === -1) worldX -= speed;
 
-                // Clamp Position (Can't go off world)
+                // CLAMP (Lock camera at end)
                 if (worldX < 0) worldX = 0;
                 if (worldX > maxScroll) worldX = maxScroll;
 
-                // Move World
                 world.style.transform = `translateX(-${worldX}px)`;
-
-                // Particle Effect
-                if(Math.random() > 0.8) createButterfly();
             }
 
-            // --- TRIGGER MEMORIES ---
-            // We check which memory is currently in the center of the viewport
+            // Check Memories
             memories.forEach(card => {
                 const rect = card.getBoundingClientRect();
-                // If element is near center of screen
-                if (rect.left < viewportWidth * 0.7 && rect.right > viewportWidth * 0.3) {
+                if (rect.left < window.innerWidth * 0.7 && rect.right > window.innerWidth * 0.3) {
                     card.classList.add('active');
                     card.style.setProperty('--rot', card.getAttribute('data-rot'));
-                } else {
-                    // Optional: remove class to make them pop out when leaving
-                     card.classList.remove('active');
                 }
             });
 
-            // --- TRIGGER PROPOSAL ---
+            // Check Final Screen Visibility
             const finalSection = document.querySelector('.biome.final');
             const finalRect = finalSection.getBoundingClientRect();
-            if (finalRect.left < viewportWidth * 0.5) {
+            if (finalRect.left < window.innerWidth * 0.5) {
                 proposalBox.style.opacity = 1;
             }
 
             requestAnimationFrame(loop);
         }
 
-        // --- INPUT HANDLING ---
+        // --- CONTROLS ---
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') {
-                isMoving = true;
-                direction = 1;
+                isMoving = true; direction = 1;
                 spriteEl.parentElement.classList.add('walking');
-                // Face Right
                 spriteEl.style.transform = 'scaleX(1)';
             }
             if (e.key === 'ArrowLeft') {
-                isMoving = true;
-                direction = -1;
+                isMoving = true; direction = -1;
                 spriteEl.parentElement.classList.add('walking');
-                // Face Left
                 spriteEl.style.transform = 'scaleX(-1)';
             }
         });
 
-        window.addEventListener('keyup', (e) => {
-            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-                isMoving = false;
-                spriteEl.parentElement.classList.remove('walking');
-            }
+        window.addEventListener('keyup', () => {
+            isMoving = false;
+            spriteEl.parentElement.classList.remove('walking');
         });
 
-        // --- BUTTERFLY ENGINE ---
-        function createButterfly() {
-            const b = document.createElement('div');
-            b.className = 'butterfly';
-            // Spawn relative to player X, random Y
-            const startY = Math.random() * (window.innerHeight - 200);
-            b.style.top = startY + 'px';
-            
-            // Randomly place slightly ahead or behind player
-            const offset = Math.random() * 400 - 200; 
-            b.style.left = (window.innerWidth / 2 + offset) + 'px';
-            
-            b.style.backgroundColor = ['#fff', '#ffd700', '#ff69b4', '#4facfe'][Math.floor(Math.random()*4)];
-            document.body.appendChild(b);
-            
-            setTimeout(() => b.remove(), 2000);
-        }
-
-        // --- RUNAWAY BUTTON ---
+        // --- BUTTON DODGE ---
         function dodge(btn) {
             const x = (Math.random() * 300) - 150;
             const y = (Math.random() * 300) - 150;
             btn.style.transform = `translate(${x}px, ${y}px)`;
         }
 
+        // --- VICTORY ---
         function celebrate() {
-            alert("❤️ She said YES! Happy Valentine's Day! ❤️");
-            // Explosion of butterflies
-            for(let i=0; i<50; i++) setTimeout(createButterfly, i*20);
+            // 1. Hide Game
+            document.getElementById('viewport').style.display = 'none';
+            document.getElementById('player').style.display = 'none';
+            
+            // 2. Show Success Screen
+            successScreen.style.display = 'flex';
+            
+            // 3. Confetti Explosion
+            for(let i=0; i<100; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = Math.random() * 100 + 'vw';
+                c.style.backgroundColor = ['#ffd700', '#fff', '#ff69b4'][Math.floor(Math.random()*3)];
+                c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                document.body.appendChild(c);
+            }
         }
 
         loop();
