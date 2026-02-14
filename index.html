@@ -33,7 +33,7 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-size: cover; background-position: center;
             z-index: 0;
-            /* filter: grayscale(100%) brightness(0.5) contrast(1.2);  */
+            filter: grayscale(100%) brightness(0.5) contrast(1.2); 
             pointer-events: none; 
         }
 
@@ -48,13 +48,12 @@
             cursor: pointer;
         }
         
-        /* HOVER EFFECT: Pops up, rotates to 0, colorizes */
+        /* HOVER EFFECT */
         .collage-img:hover {
             z-index: 100;
             border-color: var(--accent-color);
             filter: grayscale(0%) !important;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-            /* !important ensures we override the inline rotation style */
             transform: scale(1.1) rotate(0deg) !important; 
         }
 
@@ -138,9 +137,32 @@
             background: rgba(255,255,255,0.9);
         }
 
+        /* --- NEW START SCREEN --- */
+        #start-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 10000;
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
+            cursor: pointer; transition: opacity 1s ease;
+        }
+        #start-overlay h1 {
+            font-family: 'Cinzel', serif; font-size: 3rem; color: var(--accent-color);
+            margin-bottom: 20px; animation: pulse 2s infinite;
+        }
+        #start-overlay p { font-size: 1.2rem; color: #888; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
     </style>
 </head>
 <body>
+
+    <audio id="bg-music" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="start-overlay" onclick="startExperience()">
+        <h1>Click to Begin Journey</h1>
+        <p>Turn up your volume ♫</p>
+    </div>
 
     <div id="viewport">
         <div id="world">
@@ -160,7 +182,7 @@
                 <div class="biome-bg" style="background-image: url('screen2.png');"></div>
                 <div class="text-overlay">
                     <h2>The Spark</h2>
-                    <p>Living through my final year at NYUAD was a dream with you.</p>
+                    <p>City lights and long nights.</p>
                 </div>
                 <img class="collage-img" src="IMG_3482.jpg" style="top: 172.396px; left: 144px; width: 236px; transform: rotate(-13deg); --rot: -13deg;">
                 <img class="collage-img" src="IMG_0987.jpg" style="top: 95.0976px; left: 637.746px; width: 257px; transform: rotate(1deg); --rot: 1deg;">
@@ -170,8 +192,8 @@
             <div class="biome" style="border-right: 1px solid rgba(255,255,255,0.1);">
                 <div class="biome-bg" style="background-image: url('screen3.png');"></div>
                 <div class="text-overlay">
-                    <h2>Kazakhstan</h2>
-                    <p>Out first trip... was interesting, but we got stronger together.</p>
+                    <h2>Almaty</h2>
+                    <p>Freezing peaks, warm hearts.</p>
                 </div>
                 <img class="collage-img" src="IMG_4653.jpg" style="top: 110.796px; left: 100.032px; width: 296px; transform: rotate(-16deg); --rot: -16deg;">
                 <img class="collage-img" src="IMG_4542.jpg" style="top: 99.3958px; left: 1070px; width: 204px; transform: rotate(3deg); --rot: 3deg;">
@@ -182,7 +204,7 @@
                 <div class="biome-bg" style="background-image: url('screen4.png');"></div>
                 <div class="text-overlay">
                     <h2>Europe</h2>
-                    <p>Prep for Canada's freezing cold and running away to beautiful experiences.</p>
+                    <p>Ruin bars and memories.</p>
                 </div>
                 <img class="collage-img" src="IMG_5015.jpg" style="top: 133.343px; left: 118.537px; width: 227px; transform: rotate(-11deg); --rot: -11deg;">
                 <img class="collage-img" src="IMG_9421.jpg" style="top: 110.096px; left: 1090.08px; width: 242px; transform: rotate(10deg); --rot: 10deg;">
@@ -204,7 +226,7 @@
                 <div class="biome-bg" style="background-image: url('screen6.png');"></div>
                 <div class="text-overlay">
                     <h2>Long Distance</h2>
-                    <p>Surviving was a pain, but I always had my poopoo-ing babe to get me through it.</p>
+                    <p>Our love across the miles.</p>
                 </div>
                 <img class="collage-img" src="WhatsApp Image 2026-02-08 at 00.09.14.jpeg" style="top: 167.396px; left: 71px; width: 194px; transform: rotate(0deg); --rot: 0deg;">
                 <img class="collage-img" src="Screenshot_2024-05-30-12-53-24-033_com.google.android.apps.meetings.jpg" style="top: 124.396px; left: 1209px; width: 200px; transform: rotate(0deg); --rot: 0deg;">
@@ -216,7 +238,7 @@
                 <div class="biome-bg" style="background-image: url('screen7.png');"></div>
                 <div class="text-overlay">
                     <h2>Philippines</h2>
-                    <p>SA quick lil trip that I just realized I don't have photos for still -_-.</p>
+                    <p>Serenity in the forest.</p>
                 </div>
                 <img class="collage-img" src="WhatsApp Image 2026-02-14 at 14.22.042.jpeg" style="top: 256.566px; left: 54.5482px; width: 274px; transform: rotate(-2deg); --rot: -2deg;">
                 <img class="collage-img" src="WhatsApp Image 2026-02-14 at 14.22.041.jpeg" style="top: 23.2955px; left: 722.605px; width: 243px; transform: rotate(-20deg); --rot: -20deg;">
@@ -227,7 +249,7 @@
                 <div class="biome-bg" style="background-image: url('screen8.png');"></div>
                 <div class="text-overlay">
                     <h2>The Shaadi</h2>
-                    <p>Cannot wait to fill this in with our dream wedding ke pics heheheh.</p>
+                    <p>Our Royal beginning.</p>
                 </div>
             </div>
 
@@ -262,11 +284,24 @@
         const btnNo = document.getElementById('btn-no');
         const stickFig = document.getElementById('stick-fig');
         const playerContainer = document.getElementById('player');
+        const music = document.getElementById('bg-music');
+        const startOverlay = document.getElementById('start-overlay');
 
         let worldX = 0;
         let speed = 15;
         let isMoving = false;
         let direction = 0;
+
+        // STARTUP LOGIC
+        function startExperience() {
+            startOverlay.style.opacity = 0;
+            setTimeout(() => {
+                startOverlay.style.display = 'none';
+            }, 1000);
+            
+            // Try to play music
+            music.play().catch(e => console.log("Audio play failed: ", e));
+        }
 
         const biomes = document.querySelectorAll('.biome');
         const biomeWidth = 1500; 
@@ -308,7 +343,7 @@
             stickFig.classList.remove('is-walking');
         });
 
-        // Mouse dodge logic (Dodge the "No" button)
+        // Mouse dodge logic
         document.addEventListener('mousemove', (e) => {
             if(proposalBox.style.opacity == 0) return;
             const noRect = btnNo.getBoundingClientRect();
